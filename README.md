@@ -16,8 +16,6 @@ BigFish starts and stops with DSH and reports thinking, working, waiting, succes
 
 </div>
 
-![DSH 大肥鱼在真实任务中显示项目状态](docs/images/dsh-bigfish-running.png)
-
 DSH 大肥鱼不是一个需要单独启动的桌宠应用。它由 DSH 插件启用，跟随 DSH
 一起启动和退出，并以透明、无边框、始终置顶的原生窗口显示在桌面上。即使切换到
 VS Code、浏览器或文件管理器，也能知道 DSH 当前在思考、修改、测试、等待还是已经完成。
@@ -60,19 +58,21 @@ VS Code、浏览器或文件管理器，也能知道 DSH 当前在思考、修�
 如果 DSH 没有提供待办清单，大肥鱼只显示“分析阶段”“实现阶段”“验证阶段”等可靠信息，
 不会编造完成百分比。
 
-## 状态展示
+## 当前运行状态 / Current runtime display
 
-| 思考 | 工作 |
+下面是本 fork 当前代码实际提供的展示，不使用参考仓库的状态卡截图冒充运行结果：
+
+| 状态或交互 | 当前实现 |
 | --- | --- |
-| ![大肥鱼思考状态](docs/images/status-thinking.png) | ![大肥鱼工作状态](docs/images/status-working.png) |
+| DSH 状态 | 空闲、思考、工作、等待确认、完成、遇到问题；来自真实 DSH session/task/tool 事件 |
+| 对话窗口 | “蓝色大肥鱼”回复名、长文本自动换行、历史记录滚动、输入框发送到当前 Codex/DSH 会话 |
+| 移动模式 | 跟随鼠标、安静陪伴、活泼陪伴；散步有一分钟预算 |
+| 动作保护 | 思考、投喂、扫地、休息、摸头、下落和落地等有限动作播放期间不会被普通散步抢断 |
+| 物理与窗口 | 拖拽、下落、落地/眩晕阈值、桌面顶部或普通窗口层级、桌宠与气泡共享布局 |
+| 生命周期 | DSH 启动时启动单一 Helper，DSH 停止时退出；异常重启有边界，不循环弹窗 |
 
-| 等待确认 | 完成 |
-| --- | --- |
-| ![大肥鱼等待用户确认](docs/images/status-waiting.png) | ![大肥鱼任务完成](docs/images/status-success.png) |
-
-| 遇到问题 |
-| --- |
-| ![大肥鱼错误状态](docs/images/status-error.png) |
+上表对应 `src/companion-reducer.js`、`src/helper-process.js`、`runtime/helper.py`、
+`runtime/activity_director.py` 和 `runtime/layout_store.py`，不是从参考项目截图反推的功能清单。
 
 状态大致按照下面的流程变化：
 

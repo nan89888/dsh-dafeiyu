@@ -16,8 +16,6 @@ Enabled by DSH, owned by the DSH lifecycle, rendered on the desktop.
 
 </div>
 
-![DSH BigFish showing live project status](docs/images/dsh-bigfish-running.png)
-
 DSH BigFish is not a standalone desktop-pet application. DSH enables the plugin, starts and
 stops its native Helper, and provides the Agent events that drive it. The transparent,
 frameless companion stays above other desktop apps, so you can see whether DSH is thinking,
@@ -61,19 +59,22 @@ The Chinese guide is available in [README.md](README.md). The same runtime facts
 If DSH has not emitted a structured todo list, BigFish shows reliable phases such as
 “Analysis,” “Implementation,” or “Verification” instead of inventing a percentage.
 
-## Status previews
+## Current runtime display / 当前运行状态
 
-| Thinking | Working |
+The table below describes what this fork's current code actually renders; it does not use reference-repository status-card screenshots as runtime evidence:
+
+| State or interaction | Current implementation |
 | --- | --- |
-| ![BigFish thinking](docs/images/status-thinking.png) | ![BigFish working](docs/images/status-working.png) |
+| DSH state | Idle, thinking, working, waiting for confirmation, complete, and needs attention, derived from real DSH session/task/tool events |
+| Conversation window | “蓝色大肥鱼” reply label, long-text wrapping, scrollable history, and input sent to the active Codex/DSH session |
+| Movement modes | Follow, quiet companion, and lively companion, with a one-minute walking budget |
+| Action protection | Finite thinking, feeding, sweeping, resting, head-pat, falling, and landing clips are not interrupted by ordinary wandering |
+| Physics and window level | Dragging, fall/landing and dizzy threshold, desktop-topmost or normal level, with shared pet/bubble layout |
+| Lifecycle | One Helper starts with DSH and exits with DSH; bounded recovery prevents restart pop-up loops |
 
-| Waiting for you | Complete |
-| --- | --- |
-| ![BigFish waiting for user confirmation](docs/images/status-waiting.png) | ![BigFish task complete](docs/images/status-success.png) |
-
-| Needs attention |
-| --- |
-| ![BigFish error status](docs/images/status-error.png) |
+These rows map directly to `src/companion-reducer.js`, `src/helper-process.js`,
+`runtime/helper.py`, `runtime/activity_director.py`, and `runtime/layout_store.py`.
+They are not a feature list inferred from reference screenshots.
 
 The high-level state flow is:
 
