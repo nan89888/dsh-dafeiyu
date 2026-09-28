@@ -2,9 +2,13 @@
 
 # DSH 大肥鱼 🐋
 
-**住在桌面上、由 DeepSeek Harness 真实工作状态驱动的 Agent 伴侣。**
+**住在桌面上、由 DeepSeek Harness 真实工作状态驱动的 Agent 伴侣。**<br>
+**A desktop Agent companion driven by real DeepSeek Harness activity.**
 
 入口属于 DSH，生命周期属于 DSH，显示层属于桌面。
+
+**简介 / Overview**：大肥鱼随 DSH 启动和退出，通过透明桌面窗口反馈思考、工作、等待、完成和错误状态；它不是独立的模型或聊天服务，而是 DSH 的跨平台桌面伴侣。<br>
+BigFish starts and stops with DSH and reports thinking, working, waiting, success, and error states in a transparent desktop window. It is not a separate model or chat service; it is DSH's cross-platform desktop companion.
 
 [English](README_EN.md) · [npm](https://www.npmjs.com/package/dsh-dafeiyu) · [下载最新版本](https://github.com/QCYTSN/dsh-dafeiyu/releases) · [更新日志](CHANGELOG.md) · [更新与回退](docs/UPDATING.md) · [验收记录](docs/ACCEPTANCE.md) · [参考文献与移植说明](docs/REFERENCES.md)
 
