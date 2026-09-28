@@ -19,6 +19,9 @@ NON_CROSSFADE_CLIPS = {
     "dragging_release",
     "dragging_dizzy",
     "dragging_protest",
+    "falling",
+    "landing",
+    "dizzy",
 }
 
 

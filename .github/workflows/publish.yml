@@ -135,6 +135,14 @@ jobs:
           node-version: "24"
           package-manager-cache: false
 
+      - name: Set up Python for the experimental macOS visual Helper
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+
+      - name: Install macOS Helper dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements.txt
+
       - name: Run Swift core tests
         run: swift test
 
@@ -145,8 +153,8 @@ jobs:
 
       - name: Verify universal architecture and ad-hoc signature
         run: |
-          app=runtime/bin/darwin/dsh-dafeiyu-helper.app
-          binary="$app/Contents/MacOS/dsh-dafeiyu-helper"
+          app=runtime/bin/darwin/DSH.app
+          binary="$app/Contents/MacOS/DSH"
           lipo "$binary" -verify_arch arm64 x86_64
           codesign --verify --deep --strict --verbose=2 "$app"
 
@@ -213,13 +221,13 @@ jobs:
         run: |
           set -euo pipefail
           chmod 0755 runtime/bin/linux-x64/dsh-dafeiyu-helper
-          chmod 0755 runtime/bin/darwin/dsh-dafeiyu-helper.app/Contents/MacOS/dsh-dafeiyu-helper
+          chmod 0755 runtime/bin/darwin/DSH.app/Contents/MacOS/DSH
           archive=$(npm pack --silent)
           mkdir -p .build/package-check
           tar -xzf "$archive" -C .build/package-check
           test -f .build/package-check/package/runtime/bin/win32-x64/dsh-dafeiyu-helper.exe
           test -x .build/package-check/package/runtime/bin/linux-x64/dsh-dafeiyu-helper
-          test -x .build/package-check/package/runtime/bin/darwin/dsh-dafeiyu-helper.app/Contents/MacOS/dsh-dafeiyu-helper
+          test -x .build/package-check/package/runtime/bin/darwin/DSH.app/Contents/MacOS/DSH
           node scripts/test-linked-package.mjs .build/package-check/package
           xvfb-run --auto-servernum node scripts/test-packaged-helper.mjs \
             --executable .build/package-check/package/runtime/bin/linux-x64/dsh-dafeiyu-helper
@@ -249,6 +257,14 @@ jobs:
           node-version: "24"
           package-manager-cache: false
 
+      - name: Set up Python for the experimental macOS visual Helper
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+
+      - name: Install macOS Helper dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements.txt
+
       - name: Download verified cross-platform package
         uses: actions/download-artifact@v8
         with:
@@ -259,8 +275,8 @@ jobs:
         run: |
           mkdir -p .build/package-check
           tar -xzf dist/dsh-dafeiyu-*.tgz -C .build/package-check
-          app=.build/package-check/package/runtime/bin/darwin/dsh-dafeiyu-helper.app
-          binary="$app/Contents/MacOS/dsh-dafeiyu-helper"
+          app=.build/package-check/package/runtime/bin/darwin/DSH.app
+          binary="$app/Contents/MacOS/DSH"
           test -x "$binary"
           lipo "$binary" -verify_arch arm64 x86_64
           codesign --verify --deep --strict --verbose=2 "$app"

@@ -99,11 +99,10 @@ final class AnimationModelTests: XCTestCase {
     }
 
     func testDragStageClipsAreRegistered() {
-        // Release and protest are real animations now; the daze stage stays a
-        // single pose so the procedural dizzy wobble carries it.
+        // Every release stage is an authored, visible animation.
         let stages: [(name: String, loop: Bool, frames: Int)] = [
             ("dragging_release", false, 49),
-            ("dragging_dizzy", true, 1),
+            ("dragging_dizzy", true, 12),
             ("dragging_protest", false, 96),
         ]
         let model = makeModel()
@@ -142,7 +141,7 @@ final class AnimationModelTests: XCTestCase {
         let stages = AnimationModel.dragReleaseStages
         XCTAssertEqual(
             stages.map(\.clipName),
-            ["dragging_release", "dragging_dizzy", "dragging_protest"]
+            ["falling", "landing"]
         )
         XCTAssertTrue(stages.allSatisfy { $0.holdMs > 0 })
         // Every stage in the chain must be registered in the manifest and playable.

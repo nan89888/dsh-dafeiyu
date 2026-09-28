@@ -2157,14 +2157,25 @@
         "dragging_release/dragging_release_048.webp",
         "dragging_release/dragging_release_049.webp"
       ],
-      "frameMs": 42,
+      "frameMs": 41,
       "loop": false
     },
     "dragging_dizzy": {
       "frames": [
-        "dragging_dizzy/dragging_dizzy_001.webp"
+        "dragging_dizzy/dragging_dizzy_001.webp",
+        "dragging_dizzy/dragging_dizzy_002.webp",
+        "dragging_dizzy/dragging_dizzy_003.webp",
+        "dragging_dizzy/dragging_dizzy_004.webp",
+        "dragging_dizzy/dragging_dizzy_005.webp",
+        "dragging_dizzy/dragging_dizzy_006.webp",
+        "dragging_dizzy/dragging_dizzy_007.webp",
+        "dragging_dizzy/dragging_dizzy_008.webp",
+        "dragging_dizzy/dragging_dizzy_009.webp",
+        "dragging_dizzy/dragging_dizzy_010.webp",
+        "dragging_dizzy/dragging_dizzy_011.webp",
+        "dragging_dizzy/dragging_dizzy_012.webp"
       ],
-      "frameMs": 42,
+      "frameMs": 167,
       "loop": true,
       "motion": "dizzy"
     },
@@ -2267,7 +2278,7 @@
         "dragging_protest/dragging_protest_095.webp",
         "dragging_protest/dragging_protest_096.webp"
       ],
-      "frameMs": 42,
+      "frameMs": 21,
       "loop": false
     },
     "head_pat": {
@@ -2369,7 +2380,7 @@
         "head_pat/head_pat_095.webp",
         "head_pat/head_pat_096.webp"
       ],
-      "frameMs": 42,
+      "frameMs": 21,
       "loop": false
     },
     "poke": {
@@ -2471,7 +2482,7 @@
         "poke/poke_095.webp",
         "poke/poke_096.webp"
       ],
-      "frameMs": 42,
+      "frameMs": 21,
       "loop": false
     },
     "tail": {
@@ -2573,7 +2584,7 @@
         "tail/tail_095.webp",
         "tail/tail_096.webp"
       ],
-      "frameMs": 42,
+      "frameMs": 21,
       "loop": false
     },
     "eat_token": {
@@ -2701,6 +2712,236 @@
       ],
       "frameMs": 42,
       "loop": false
+    },
+    "walk_left": {
+      "frames": [
+        "walk_left/walk_left_001.webp",
+        "walk_left/walk_left_002.webp",
+        "walk_left/walk_left_003.webp",
+        "walk_left/walk_left_004.webp"
+      ],
+      "frameMs": 120,
+      "loop": true
+    },
+    "walk_right": {
+      "frames": [
+        "walk_right/walk_right_001.webp",
+        "walk_right/walk_right_002.webp",
+        "walk_right/walk_right_003.webp",
+        "walk_right/walk_right_004.webp"
+      ],
+      "frameMs": 120,
+      "loop": true
+    },
+    "walk_start_left": {
+      "frames": [
+        "walk_start_left/walk_start_left_001.webp",
+        "walk_start_left/walk_start_left_002.webp"
+      ],
+      "frameMs": 1000,
+      "loop": true
+    },
+    "walk_start_right": {
+      "frames": [
+        "walk_start_right/walk_start_right_001.webp",
+        "walk_start_right/walk_start_right_002.webp"
+      ],
+      "frameMs": 1000,
+      "loop": true
+    },
+    "walk_stop_left": {
+      "frames": [
+        "walk_stop_left/walk_stop_left_001.webp",
+        "walk_stop_left/walk_stop_left_002.webp"
+      ],
+      "frameMs": 1000,
+      "loop": true
+    },
+    "walk_stop_right": {
+      "frames": [
+        "walk_stop_right/walk_stop_right_001.webp",
+        "walk_stop_right/walk_stop_right_002.webp"
+      ],
+      "frameMs": 1000,
+      "loop": true
+    },
+    "blink": {
+      "frames": [
+        "blink/blink_001.webp",
+        "blink/blink_002.webp",
+        "blink/blink_003.webp",
+        "blink/blink_004.webp",
+        "blink/blink_005.webp"
+      ],
+      "frameMs": 400,
+      "loop": false
+    },
+    "glance": {
+      "frames": [
+        "glance/glance_001.webp",
+        "glance/glance_002.webp",
+        "glance/glance_003.webp",
+        "glance/glance_004.webp",
+        "glance/glance_005.webp",
+        "glance/glance_006.webp",
+        "glance/glance_007.webp"
+      ],
+      "frameMs": 286,
+      "loop": false
+    },
+    "happy": {
+      "frames": [
+        "happy/happy_001.webp",
+        "happy/happy_002.webp",
+        "happy/happy_003.webp",
+        "happy/happy_004.webp",
+        "happy/happy_005.webp",
+        "happy/happy_006.webp",
+        "happy/happy_007.webp",
+        "happy/happy_008.webp",
+        "happy/happy_009.webp",
+        "happy/happy_010.webp",
+        "happy/happy_011.webp",
+        "happy/happy_012.webp"
+      ],
+      "frameMs": 167,
+      "loop": false,
+      "motion": "bounce"
+    },
+    "angry": {
+      "frames": [
+        "angry/angry_001.webp",
+        "angry/angry_002.webp",
+        "angry/angry_003.webp",
+        "angry/angry_004.webp",
+        "angry/angry_005.webp",
+        "angry/angry_006.webp",
+        "angry/angry_007.webp",
+        "angry/angry_008.webp",
+        "angry/angry_009.webp",
+        "angry/angry_010.webp",
+        "angry/angry_011.webp",
+        "angry/angry_012.webp"
+      ],
+      "frameMs": 167,
+      "loop": false,
+      "motion": "shake"
+    },
+    "talk": {
+      "frames": [
+        "talk/talk_001.webp",
+        "talk/talk_002.webp",
+        "talk/talk_003.webp",
+        "talk/talk_004.webp",
+        "talk/talk_005.webp",
+        "talk/talk_006.webp",
+        "talk/talk_007.webp",
+        "talk/talk_008.webp",
+        "talk/talk_009.webp",
+        "talk/talk_010.webp",
+        "talk/talk_011.webp",
+        "talk/talk_012.webp"
+      ],
+      "frameMs": 167,
+      "loop": false,
+      "motion": "float"
+    },
+    "sweep": {
+      "frames": [
+        "sweep/sweep_001.webp",
+        "sweep/sweep_002.webp",
+        "sweep/sweep_003.webp",
+        "sweep/sweep_004.webp",
+        "sweep/sweep_005.webp",
+        "sweep/sweep_006.webp",
+        "sweep/sweep_007.webp",
+        "sweep/sweep_008.webp",
+        "sweep/sweep_009.webp",
+        "sweep/sweep_010.webp",
+        "sweep/sweep_011.webp",
+        "sweep/sweep_012.webp"
+      ],
+      "frameMs": 167,
+      "loop": false,
+      "motion": "work"
+    },
+    "sleep": {
+      "frames": [
+        "sleep/sleep_001.webp",
+        "sleep/sleep_002.webp",
+        "sleep/sleep_003.webp",
+        "sleep/sleep_004.webp",
+        "sleep/sleep_005.webp",
+        "sleep/sleep_006.webp",
+        "sleep/sleep_007.webp",
+        "sleep/sleep_008.webp",
+        "sleep/sleep_009.webp",
+        "sleep/sleep_010.webp",
+        "sleep/sleep_011.webp",
+        "sleep/sleep_012.webp"
+      ],
+      "frameMs": 110,
+      "loop": false,
+      "motion": "breathe"
+    },
+    "falling": {
+      "frames": [
+        "falling/falling_001.webp",
+        "falling/falling_002.webp",
+        "falling/falling_003.webp",
+        "falling/falling_004.webp",
+        "falling/falling_005.webp"
+      ],
+      "frameMs": 400,
+      "loop": false,
+      "motion": "float"
+    },
+    "dizzy": {
+      "frames": [
+        "dizzy/dizzy_001.webp",
+        "dizzy/dizzy_002.webp",
+        "dizzy/dizzy_003.webp",
+        "dizzy/dizzy_004.webp",
+        "dizzy/dizzy_005.webp",
+        "dizzy/dizzy_006.webp",
+        "dizzy/dizzy_007.webp",
+        "dizzy/dizzy_008.webp",
+        "dizzy/dizzy_009.webp",
+        "dizzy/dizzy_010.webp",
+        "dizzy/dizzy_011.webp",
+        "dizzy/dizzy_012.webp"
+      ],
+      "frameMs": 167,
+      "loop": false,
+      "motion": "dizzy"
+    },
+    "landing": {
+      "frames": [
+        "landing/landing_001.webp",
+        "landing/landing_002.webp",
+        "landing/landing_003.webp"
+      ],
+      "frameMs": 667,
+      "loop": false
+    },
+    "eating": {
+      "frames": [
+        "eating/eating_001.webp",
+        "eating/eating_002.webp",
+        "eating/eating_003.webp",
+        "eating/eating_004.webp",
+        "eating/eating_005.webp",
+        "eating/eating_006.webp",
+        "eating/eating_007.webp",
+        "eating/eating_008.webp",
+        "eating/eating_009.webp",
+        "eating/eating_010.webp",
+        "eating/eating_011.webp",
+        "eating/eating_012.webp"
+      ],
+      "frameMs": 167,
+      "loop": false,
+      "motion": "bounce"
     }
   },
   "stateMap": {
@@ -2719,7 +2960,25 @@
     "testing": "working_command",
     "using-tool": "working"
   },
+  "programs": {
+    "walk_left": {
+      "enter": "walk_start_left",
+      "body": "walk_left",
+      "exit": "walk_stop_left"
+    },
+    "walk_right": {
+      "enter": "walk_start_right",
+      "body": "walk_right",
+      "exit": "walk_stop_right"
+    }
+  },
   "idleMicroClips": [
-    "eat_token"
+    "blink",
+    "glance",
+    "happy",
+    "sweep",
+    "talk",
+    "sleep",
+    "eating"
   ]
 }

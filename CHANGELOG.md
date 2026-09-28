@@ -2,6 +2,34 @@
 
 ## Unreleased
 
+## 0.1.15
+
+### Added
+
+- Added a source and asset provenance document covering the DeepSeek Harness,
+  ds-local-pet, dsh-pet, and this plugin, with a cross-platform porting map and
+  a reproducible validation matrix (`docs/REFERENCES.md`).
+- Added a package whitelist regression test for every Python module used by the
+  source fallback helper.
+
+### Fixed
+
+- Included `runtime/asset_paths.py` in the npm package. Without it, a packaged
+  source fallback could fail before the Helper emitted `ready`, which looked
+  like a platform-specific crash.
+- Kept Helper startup failures, broken pipes, heartbeat timeouts, pre-READY
+  crashes, post-READY crash loops, and bounded input backpressure covered by
+  automated lifecycle tests. A failing Helper is isolated and bounded instead
+  of taking down the DSH host or restarting forever.
+- Cross-platform release builds continue to build native Windows and Linux
+  x64 Helpers on their matching GitHub runners and verify the extracted npm
+  archive before publishing.
+
+### Changed
+
+- Conversation history renders the assistant as “蓝色大肥鱼”; the underlying
+  Codex transport and model selection remain unchanged.
+
 ## 0.1.14
 
 ### Changed

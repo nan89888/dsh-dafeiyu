@@ -6,7 +6,7 @@
 
 Enabled by DSH, owned by the DSH lifecycle, rendered on the desktop.
 
-[中文](README.md) · [npm](https://www.npmjs.com/package/dsh-dafeiyu) · [Latest release](https://github.com/QCYTSN/dsh-dafeiyu/releases) · [Changelog](CHANGELOG.md) · [Update and rollback](docs/UPDATING.md) · [Acceptance notes](docs/ACCEPTANCE.md)
+[中文](README.md) · [npm](https://www.npmjs.com/package/dsh-dafeiyu) · [Latest release](https://github.com/QCYTSN/dsh-dafeiyu/releases) · [Changelog](CHANGELOG.md) · [Update and rollback](docs/UPDATING.md) · [Acceptance notes](docs/ACCEPTANCE.md) · [References and porting notes](docs/REFERENCES.md)
 
 [![npm](https://img.shields.io/npm/v/dsh-dafeiyu?label=npm)](https://www.npmjs.com/package/dsh-dafeiyu) · [![GitHub Release](https://img.shields.io/github/v/release/QCYTSN/dsh-dafeiyu?label=GitHub%20Release)](https://github.com/QCYTSN/dsh-dafeiyu/releases)
 
@@ -19,7 +19,7 @@ stops its native Helper, and provides the Agent events that drive it. The transp
 frameless companion stays above other desktop apps, so you can see whether DSH is thinking,
 editing, testing, waiting, or finished while working in VS Code, a browser, or File Explorer.
 
-> Current version: `0.1.14` · Windows / WSL2 / Linux x64 · experimental macOS support
+> Current version: `0.1.15` · Windows / WSL2 / Linux x64 · experimental macOS support
 
 ## Follow updates
 
@@ -93,8 +93,9 @@ When multiple tasks are active, the status bubble lists them at the same time.
 - A DSH CLI that supports `plugin --profile web`
 - the stable `dsh-dafeiyu` from npm (or `dsh-dafeiyu@alpha` to try prereleases early), or a `.tgz` archive from GitHub Releases
 
-Regular users do **not** need Python or PySide6 and should not launch the Helper
-manually. Windows, Linux x64, and macOS Helpers are bundled in the release archive.
+Windows and Linux users do **not** need Python or PySide6 and should not launch the
+Helper manually; their prebuilt Helpers are included in the release archive. macOS
+still uses the experimental Python/PySide6 path described below.
 
 The current Alpha build uses Simplified Chinese for the settings UI and desktop status copy.
 
@@ -189,8 +190,9 @@ the Helper yourself.
 > "About macOS Gatekeeper" below.
 
 Installation on macOS is the same as Windows, just in the Terminal with macOS
-paths. The release bundle ships a native Helper — **no Python, PySide6 or Xcode
-required**.
+paths. The current experimental visual path still runs Python/PySide6, so prepare
+Python 3.11+ and the `PySide6` dependency from `requirements.txt` first. Windows
+and Linux users do not need these runtime dependencies.
 
 In Terminal, `cd` into your DSH installation directory (for example
 `~/deepseek-harness`):
@@ -246,7 +248,7 @@ carries the quarantine attribute and gets blocked on double-click.
   → "Open" once to allow it, or clear the quarantine attribute and run it:
 
   ```bash
-  xattr -dr com.apple.quarantine <path to the extracted dsh-dafeiyu-helper.app>
+  xattr -dr com.apple.quarantine <path to the extracted DSH.app>
   ```
 
 ### 3. GitHub Release fallback
@@ -420,42 +422,28 @@ DSH to bring it back. To disable it permanently, turn off “Enable BigFish” i
 
 ## Native macOS port (AI-assisted)
 
-> **Note**: the native macOS helper (`runtime/bin/darwin/dsh-dafeiyu-helper.app`)
-> and the Swift sources under `native/macos/` were **generated with AI
-> assistance**, reviewed and debugged by a human before being merged. They
-> replace the original Qt/PySide6 and PyObjC prototypes, which were unstable
-> and crash-prone on macOS.
+> **Note**: macOS support is still experimental. `src/helper-process.js` selects
+> one `runtime/helper.py` visual Helper today; the Swift sources under
+> `native/macos/` are retained as tested AppKit/core experiments and are not
+> launched in parallel with the Python Helper.
 
 What was redone:
 
-- **Runtime rewrite**: the Qt/PySide6 window (the visual path of
-  `runtime/helper.py`) and the PyObjC native-window prototype were rewritten as
-  a **pure Swift + AppKit** implementation. Python, PySide6, PyObjC and
-  conda environments are no longer required.
-- **Animation engine port**: the pure logic of `runtime/animation_model.py`
-  (clips, pulse, overlay, idle micro-motions, crossfade, procedural motion)
-  was ported line-by-line to Swift with behavior parity with the Windows/Qt
-  version.
-- **Above-fullscreen window**: Apple's official window capabilities
-  (`canJoinAllSpaces` + `fullScreenAuxiliary` + `.floating` level), re-asserted
-  every 2 seconds so the pet stays in front of full-screen apps.
-- **Permissions**: notifications via `UNUserNotificationCenter` (SUCCESS/ERROR
-  alerts, falling back to beep + shake when denied); Accessibility via
-  `AXIsProcessTrustedWithOptions` with a System Settings deep link in the
-  context menu.
-- **Stability fixes**: EPIPE guards on the helper's stdin/stdout/stderr so a
-  helper crash only restarts the helper itself, never the dsh server.
-- **Rendering/interaction fixes**: fixed the upside-down image in the flipped
-  view, made dragging track the cursor 1:1 with absolute coordinates, and kept
-  the character and the status bubble in sync while dragging.
-- **Layout migration**: on first launch the old Qt top-left coordinates are
-  migrated to AppKit bottom-left, still reading/writing the same `layout.json`.
+- **Single runtime**: the visible window and animation state machine remain in
+  `runtime/helper.py`, preventing two competing window implementations from
+  creating duplicate pets or silhouettes.
+- **Swift baseline**: `native/macos/` keeps the AppKit window, animation,
+  layout-migration, and interaction-physics implementations together with
+  repeatable `swift test` coverage for future native work.
+- **Stability boundary**: Helper stdin/stdout/stderr have EPIPE guards; a
+  Helper crash is isolated and bounded by the host restart policy.
 
 Compatibility:
 
 - **Architecture**: Universal binary (Apple Silicon arm64 + Intel x86_64)
 - **System**: macOS 12.0+
-- Build and install instructions: [native/macos/README.md](native/macos/README.md)
+- Current experimental limits are documented in
+  [References and cross-platform porting notes](docs/REFERENCES.md).
 
 ## Development and tests
 
@@ -497,6 +485,7 @@ macOS native Helper build instructions: [native/macos/README.md](native/macos/RE
 - [Windows acceptance and performance](docs/ACCEPTANCE.md)
 - [Update, rollback, and uninstall](docs/UPDATING.md)
 - [Maintainer release workflow](docs/RELEASING.md)
+- [References and cross-platform porting notes](docs/REFERENCES.md)
 - [Character asset license](ASSET_LICENSE.md)
 
 Related project: [QCYTSN/ds-local-pet](https://github.com/QCYTSN/ds-local-pet) is the

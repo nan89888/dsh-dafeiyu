@@ -110,6 +110,14 @@ jobs:
           node-version: "24"
           package-manager-cache: false
 
+      - name: Set up Python for the experimental macOS visual Helper
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+
+      - name: Install macOS Helper dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements.txt
+
       - name: Run Swift core tests
         run: swift test
 
@@ -129,8 +137,8 @@ jobs:
 
       - name: Verify universal architecture and ad-hoc signature
         run: |
-          app=runtime/bin/darwin/dsh-dafeiyu-helper.app
-          binary="$app/Contents/MacOS/dsh-dafeiyu-helper"
+          app=runtime/bin/darwin/DSH.app
+          binary="$app/Contents/MacOS/DSH"
           lipo "$binary" -verify_arch arm64 x86_64
           codesign --verify --deep --strict --verbose=2 "$app"
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$app/Contents/Info.plist")" = "$(node -p "require('./package.json').version")"
@@ -140,8 +148,8 @@ jobs:
           archive=$(npm pack --silent)
           mkdir -p .build/package-check
           tar -xzf "$archive" -C .build/package-check
-          app=.build/package-check/package/runtime/bin/darwin/dsh-dafeiyu-helper.app
-          binary="$app/Contents/MacOS/dsh-dafeiyu-helper"
+          app=.build/package-check/package/runtime/bin/darwin/DSH.app
+          binary="$app/Contents/MacOS/DSH"
           test -x "$binary"
           lipo "$binary" -verify_arch arm64 x86_64
           codesign --verify --deep --strict --verbose=2 "$app"

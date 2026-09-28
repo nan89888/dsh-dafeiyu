@@ -80,11 +80,45 @@ test('touch overlays play once and hand control back to the base state', async (
   }
 })
 
-test('drag daze stays procedural so reduced-motion devices keep a stable pose', async () => {
+test('drag daze uses a visible authored multi-frame cycle', async () => {
   const manifest = JSON.parse(await readFile(manifestPath, 'utf8'))
-  assert.equal(manifest.clips.dragging_dizzy.frames.length, 1)
+  assert.equal(manifest.clips.dragging_dizzy.frames.length, 12)
+  assert.ok(manifest.clips.dragging_dizzy.frameMs >= 160)
   assert.equal(manifest.clips.dragging_dizzy.motion, 'dizzy')
   assert.equal(manifest.clips.dragging.motion, undefined)
+})
+
+test('reference action overlays are registered as finite clips', async () => {
+  const manifest = JSON.parse(await readFile(manifestPath, 'utf8'))
+  for (const clipName of ['happy', 'angry', 'talk', 'sweep', 'sleep', 'falling', 'landing', 'dizzy', 'eating']) {
+    const clip = manifest.clips[clipName]
+    assert.ok(clip && clip.frames.length > 0, `${clipName} must be registered`)
+    assert.equal(clip.loop, false, `${clipName} should finish and return to the base state`)
+  }
+})
+
+test('directional walk frames share one logical canvas and authored direction', async () => {
+  const manifest = JSON.parse(await readFile(manifestPath, 'utf8'))
+  const left = manifest.clips.walk_left
+  const right = manifest.clips.walk_right
+  assert.equal(left.frames.length, 4)
+  assert.equal(right.frames.length, 4)
+  const leftSizes = new Set()
+  const rightSizes = new Set()
+  for (const frame of left.frames) leftSizes.add(JSON.stringify(webpSize(await readFile(resolve(assetRoot, frame)))))
+  for (const frame of right.frames) rightSizes.add(JSON.stringify(webpSize(await readFile(resolve(assetRoot, frame)))))
+  assert.deepEqual([...leftSizes], ['{"width":412,"height":344}'])
+  assert.deepEqual([...rightSizes], ['{"width":412,"height":344}'])
+  assert.notDeepEqual(left.frames, right.frames, 'right-facing gait must not mirror/reuse left frames')
+})
+
+test('non-core finite actions remain visible for about two seconds', async () => {
+  const manifest = JSON.parse(await readFile(manifestPath, 'utf8'))
+  const core = new Set(['happy', 'eating', 'sleep'])
+  for (const [name, clip] of Object.entries(manifest.clips)) {
+    if (core.has(name) || clip.loop) continue
+    assert.ok(clip.frames.length * clip.frameMs >= 1900, `${name} is shorter than 2s`)
+  }
 })
 
 test('original notification sounds are valid short mono WAV files', async () => {

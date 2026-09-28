@@ -15,7 +15,7 @@ const executable = resolve(argument('--executable')
     process.platform === 'win32'
       ? 'runtime/bin/win32-x64/dsh-dafeiyu-helper.exe'
       : process.platform === 'darwin'
-        ? 'runtime/bin/darwin/dsh-dafeiyu-helper.app/Contents/MacOS/dsh-dafeiyu-helper'
+        ? 'runtime/bin/darwin/DSH.app/Contents/Resources/dsh-dafeiyu-helper'
         : 'runtime/bin/linux-x64/dsh-dafeiyu-helper',
   ))
 const snapshot = resolve(argument('--snapshot')

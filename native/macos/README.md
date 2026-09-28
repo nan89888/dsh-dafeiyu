@@ -3,10 +3,10 @@
 > **AI 辅助生成**：本目录的 Swift 源码与构建产物由 AI 辅助生成，经人工
 > review 与调试后合入（详见主 README 的「macOS 原生适配」章节）。
 
-这是 `dsh-dafeiyu` 桌面大肥鱼的 **macOS 原生实现**：用 Swift + 纯
-AppKit 重写了原来的 Qt/PySide6 helper 和 PyObjC 原生窗口原型，不依赖
-Python、Qt 或 PyObjC，因此彻底绕开了「anaconda Python 3.13 + PySide6 /
-PyObjC 在 macOS 26 上崩溃 → EPIPE 未捕获 → 整个 dsh 服务器退出」的故障链。
+这是 `dsh-dafeiyu` 的 **macOS 原生试验目录**。当前插件运行时仍由
+`src/helper-process.js` 选择单一的 `runtime/helper.py` 可视 Helper；这里的 Swift
+实现用于验证 AppKit 窗口、动画状态机、布局迁移和交互物理，不能与 Python Helper
+同时启动，否则会出现重复桌宠或残影。
 
 ## 重做了哪些地方
 
@@ -26,7 +26,7 @@ PyObjC 在 macOS 26 上崩溃 → EPIPE 未捕获 → 整个 dsh 服务器退出
 - 最低系统：macOS 12.0（`build.sh` 以 `-target *-apple-macosx12.0` 构建）
 - 构建工具：Xcode Command Line Tools（`swiftc` + `lipo` + `codesign`）
 
-## 功能（与 Windows/Qt 版对齐）
+## Swift 试验实现的功能基线
 
 - 状态展示：`IDLE / THINKING / WORKING / WAITING / SUCCESS / ERROR /
   DISCONNECTED`，状态卡 + 多任务卡（颜色、图标、截断文本）
@@ -55,9 +55,9 @@ PyObjC 在 macOS 26 上崩溃 → EPIPE 未捕获 → 整个 dsh 服务器退出
 native/macos/build.sh
 ```
 
-产物：`runtime/bin/darwin/dsh-dafeiyu-helper.app`（Universal 二进制
-arm64 + x86_64，最低 macOS 12.0，ad-hoc 签名，素材打进
-`Contents/Resources/assets`）。要求 Xcode Command Line Tools（`swiftc`）。
+产物：`runtime/bin/darwin/DSH.app`（Universal 二进制 arm64 + x86_64，最低
+macOS 12.0，ad-hoc 签名，素材打进 `Contents/Resources/assets`）。它是试验产物；
+正式插件路径仍以 `runtime/helper.py` 为准。要求 Xcode Command Line Tools。
 
 ## 签名与 Gatekeeper 边界
 
@@ -133,9 +133,9 @@ pnpm exec dsh plugin --profile web add ~/Downloads/dsh-dafeiyu-<version>.tgz
 
 ## 接入
 
-`src/helper-process.js` 在 `process.platform === 'darwin'` 时优先使用该
-原生 helper（与 Windows 的 win32-x64 EXE 同路径模式）；helper 崩溃时由
-插件自动重启，且 stdin/stdout/stderr 的 EPIPE 已被兜底，不再拖垮 dsh。
+`src/helper-process.js` 在 `process.platform === 'darwin'` 时选择
+`scripts/macos-python-helper.sh`，由它启动单一的 `runtime/helper.py`。helper 崩溃时
+由插件自动重启，且 stdin/stdout/stderr 的 EPIPE 已被兜底，不再拖垮 DSH。
 
 重新打包并安装到 dsh profile：
 

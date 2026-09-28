@@ -14,6 +14,20 @@ test('package files whitelist ships the glove cursors and their license notice',
   }
 })
 
+test('package files whitelist ships every Python module used by the source fallback', async () => {
+  const pkg = JSON.parse(await readFile(join(repositoryRoot, 'package.json'), 'utf8'))
+  for (const entry of [
+    'runtime/__init__.py',
+    'runtime/activity_director.py',
+    'runtime/animation_model.py',
+    'runtime/asset_paths.py',
+    'runtime/helper.py',
+    'runtime/layout_store.py',
+  ]) {
+    assert.ok(pkg.files.includes(entry), `package.json "files" is missing ${entry}`)
+  }
+})
+
 test('glove cursor files are valid 32x32 CUR icons', async () => {
   for (const name of ['cursor_grab.cur', 'cursor_grabbing.cur']) {
     const bytes = await readFile(join(assetRoot, name))

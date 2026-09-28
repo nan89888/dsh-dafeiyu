@@ -44,7 +44,7 @@ async function waitFor(predicate, timeoutMs = 5000) {
 }
 
 // Checks protocol semantics (message kind) rather than JSON whitespace, so
-// both the Swift and Python helpers pass regardless of serializer formatting.
+// helper implementations pass regardless of serializer formatting.
 async function eventLogHasKind(eventLog, kind) {
   try {
     const lines = (await readFile(eventLog, 'utf8')).trim().split(/\r?\n/).filter(Boolean)

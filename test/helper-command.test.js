@@ -5,6 +5,7 @@ import { join } from 'node:path'
 import test from 'node:test'
 import {
   cacheWslBundledHelper,
+  darwinPythonHelperPath,
   defaultCmdExe,
   defaultWindowsLocalAppData,
   resolveHelperLaunch,
@@ -12,7 +13,6 @@ import {
 
 const bundledPath = '/package/runtime/bin/win32-x64/dsh-dafeiyu-helper.exe'
 const linuxBundledPath = '/package/runtime/bin/linux-x64/dsh-dafeiyu-helper'
-const darwinBundledPath = '/package/runtime/bin/darwin/dsh-dafeiyu-helper.app/Contents/MacOS/dsh-dafeiyu-helper'
 const helperPath = '/package/runtime/helper.py'
 
 function resolve(overrides = {}) {
@@ -21,7 +21,6 @@ function resolve(overrides = {}) {
     isWslEnv: false,
     bundledPath,
     linuxBundledPath,
-    darwinBundledPath,
     helperPath,
     fileExists: () => true,
     windowsPath: () => 'C:\\package\\runtime\\bin\\win32-x64\\dsh-dafeiyu-helper.exe',
@@ -52,10 +51,10 @@ test('native Windows falls back to the bundled path when caching fails', () => {
   )
 })
 
-test('native macOS launches the bundled universal helper directly', () => {
+test('macOS always launches the single PySide helper implementation', () => {
   assert.deepEqual(resolve({ platform: 'darwin' }), {
-    command: darwinBundledPath,
-    args: [],
+    command: 'bash',
+    args: [darwinPythonHelperPath],
   })
 })
 
@@ -67,6 +66,17 @@ test('macOS falls back to configured Python when its bundle is absent', () => {
   }), {
     command: '/opt/dsh/python',
     args: [helperPath],
+  })
+})
+
+test('macOS does not select a stale Swift helper even when one is present', () => {
+  assert.deepEqual(resolve({
+    platform: 'darwin',
+    fileExists: (path) => path.endsWith('DSH.app/Contents/MacOS/DSH')
+      || path.endsWith('macos-python-helper.sh'),
+  }), {
+    command: 'bash',
+    args: [darwinPythonHelperPath],
   })
 })
 

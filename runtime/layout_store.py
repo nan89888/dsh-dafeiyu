@@ -59,6 +59,14 @@ def normalise_layout(value: Any) -> dict[str, Any]:
         layout["bubbleMode"] = value["bubbleMode"]
     if isinstance(value.get("bubbleStates"), list):
         layout["bubbleStates"] = [str(state) for state in value["bubbleStates"] if isinstance(state, str)]
+    movement_mode = value.get("movementMode")
+    if movement_mode in {"follow", "quiet", "lively", "still", "wander"}:
+        layout["movementMode"] = {"still": "quiet", "wander": "lively"}.get(movement_mode, movement_mode)
+    walk_speed = value.get("walkSpeed")
+    if isinstance(walk_speed, (int, float)) and not isinstance(walk_speed, bool):
+        layout["walkSpeed"] = min(180.0, max(20.0, float(walk_speed)))
+    if value.get("windowLevel") in {"topmost", "desktop"}:
+        layout["windowLevel"] = value["windowLevel"]
     return layout
 
 

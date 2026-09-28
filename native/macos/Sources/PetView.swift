@@ -19,6 +19,7 @@ final class PetView: NSView {
         let mouse = NSEvent.mouseLocation
         grabOffset = NSPoint(x: mouse.x - window.frame.origin.x,
                              y: mouse.y - window.frame.origin.y)
+        controller?.interactionPress(at: convert(event.locationInWindow, from: nil))
     }
 
     override func mouseDragged(with event: NSEvent) {
@@ -38,19 +39,19 @@ final class PetView: NSView {
         }
         window.setFrameOrigin(newOrigin)
         controller?.updateDrag()
+        controller?.interactionMove(at: convert(event.locationInWindow, from: nil))
     }
 
     override func mouseUp(with event: NSEvent) {
         let point = convert(event.locationInWindow, from: nil)
         let clickCount = event.clickCount
-        let wasDragging = controller?.dragging ?? false
         grabOffset = nil
         windowOrigin = nil
-        if wasDragging {
-            controller?.endDrag()
-        } else {
-            controller?.handleClick(at: point, clickCount: clickCount)
-        }
+        controller?.interactionRelease(at: point, clickCount: clickCount)
+    }
+
+    override func scrollWheel(with event: NSEvent) {
+        controller?.scrollConversation(by: event.scrollingDeltaY * 1.6)
     }
 
     override func rightMouseDown(with event: NSEvent) {
@@ -59,6 +60,13 @@ final class PetView: NSView {
 
     override func draw(_ dirtyRect: NSRect) {
         guard let controller = controller else { return }
+        // Clear the *whole* transparent backing store before drawing the new
+        // frame.  Clearing only `dirtyRect` is not sufficient for a buffered
+        // borderless panel: AppKit can retain a previously painted frame in
+        // the part of the view that was not invalidated, which shows up as a
+        // dark duplicate/silhouette behind the pet after it moves.
+        NSColor.clear.setFill()
+        bounds.fill(using: .copy)
         controller.drawPet(in: self)
         controller.drawCard(in: self)
     }

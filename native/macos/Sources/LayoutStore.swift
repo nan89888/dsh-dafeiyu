@@ -14,6 +14,15 @@ struct PetLayout {
     var reducedMotion: Bool = false
     var bubbleMode: String = "always"
     var bubbleStates: [String] = ["SUCCESS", "ERROR", "WAITING"]
+    var movementMode: String = "follow"
+    var walkSpeed: Double = 82
+    var windowLanding: Bool = false
+    var localAwareness: Bool = false
+    /// Window level preference. `topmost` keeps the pet above normal windows;
+    /// `desktop` uses the normal desktop/window level so it will not cover
+    /// other applications. The former native helper always forced `.floating`,
+    /// which made the setting impossible to change and easy to lose on launch.
+    var windowLevel: String = "topmost"
     /// Set once the native helper has written the file. Lets us migrate the
     /// old Qt helper's top-left coordinates to AppKit's bottom-left origin.
     var coordinateSpace: String?
@@ -45,6 +54,7 @@ struct PetLayout {
         var layout = self
         layout.scale = min(1.4, max(0.55, scale))
         layout.bubbleScale = min(1.2, max(0.8, bubbleScale))
+        layout.walkSpeed = min(180, max(20, walkSpeed.isFinite ? walkSpeed : 82))
         if !["always", "hidden", "custom"].contains(bubbleMode) {
             layout.bubbleMode = "always"
         }
@@ -82,6 +92,15 @@ struct PetLayout {
             layout.bubbleStates = rawStates.compactMap { $0 as? String }
         }
         if let s = json["coordinateSpace"] as? String { layout.coordinateSpace = s }
+        if let mode = json["movementMode"] as? String, ["follow", "quiet", "lively", "still", "wander"].contains(mode) {
+            layout.movementMode = ["still": "quiet", "wander": "lively"][mode] ?? mode
+        }
+        if let speed = json["walkSpeed"] as? Double, !speed.isNaN { layout.walkSpeed = min(180, max(20, speed)) }
+        if let landing = json["windowLanding"] as? Bool { layout.windowLanding = landing }
+        if let awareness = json["localAwareness"] as? Bool { layout.localAwareness = awareness }
+        if let level = json["windowLevel"] as? String, ["topmost", "desktop"].contains(level) {
+            layout.windowLevel = level
+        }
         return layout.normalized()
     }
 
@@ -99,12 +118,22 @@ struct PetLayout {
             "bubbleMode": normalized.bubbleMode,
             "bubbleStates": normalized.bubbleStates,
             "coordinateSpace": "appkit-bottom-left",
+            "movementMode": normalized.movementMode,
+            "walkSpeed": normalized.walkSpeed,
+            "windowLanding": normalized.windowLanding,
+            "localAwareness": normalized.localAwareness,
+            "windowLevel": normalized.windowLevel,
         ]
         guard let data = try? JSONSerialization.data(withJSONObject: dict, options: [.prettyPrinted, .sortedKeys]) else {
             return
         }
         do {
             try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+            if FileManager.default.fileExists(atPath: url.path) {
+                let backup = url.appendingPathExtension("bak")
+                try? FileManager.default.removeItem(at: backup)
+                try? FileManager.default.copyItem(at: url, to: backup)
+            }
             try data.write(to: url, options: .atomic)
         } catch {
             FileHandle.standardError.write(Data("Unable to save BigFish layout: \(error)\n".utf8))

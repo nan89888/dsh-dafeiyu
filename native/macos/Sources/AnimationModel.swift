@@ -13,6 +13,12 @@ final class AnimationModel {
         let motion: String?
     }
 
+    struct Program {
+        let enter: String?
+        let body: String
+        let exit: String?
+    }
+
     static let states: Set<String> = [
         "IDLE", "THINKING", "WORKING", "WAITING", "SUCCESS", "ERROR", "DISCONNECTED",
     ]
@@ -21,10 +27,12 @@ final class AnimationModel {
     /// the UI layer so the sequence is testable and stays aligned with the
     /// manifest-registered stage clips (mirrors `DRAG_RELEASE_STAGES` in
     /// `runtime/helper.py`).
+    /// A gentle release uses one falling clip followed by the authored
+    /// standing recovery. Dizziness is selected only by the physics solver
+    /// when an actual hard impact is measured; it is never appended randomly.
     static let dragReleaseStages: [(clipName: String, holdMs: Int)] = [
-        ("dragging_release", 300),
-        ("dragging_dizzy", 840),
-        ("dragging_protest", 300),
+        ("falling", 2000),
+        ("landing", 2000),
     ]
 
     private static let nonCrossfadeClips: Set<String> = [
@@ -48,6 +56,7 @@ final class AnimationModel {
     private(set) var clips: [String: Clip] = [:]
     private var stateMap: [String: String] = [:]
     private var workingActivityMap: [String: String] = [:]
+    private var programs: [String: Program] = [:]
     private(set) var idleMicroClips: [String] = []
 
     private(set) var baseState = "IDLE"
@@ -78,6 +87,17 @@ final class AnimationModel {
         if let map = manifest["stateMap"] as? [String: String] { stateMap = map }
         if let map = manifest["workingActivityMap"] as? [String: String] { workingActivityMap = map }
         if let micros = manifest["idleMicroClips"] as? [String] { idleMicroClips = micros }
+        if let rawPrograms = manifest["programs"] as? [String: Any] {
+            for (name, raw) in rawPrograms {
+                guard let value = raw as? [String: Any],
+                      let body = value["body"] as? String else { continue }
+                programs[name] = Program(
+                    enter: value["enter"] as? String,
+                    body: body,
+                    exit: value["exit"] as? String
+                )
+            }
+        }
         if let idleClip = stateMap["IDLE"], !idleClip.isEmpty {
             baseClipName = idleClip
             activeClipName = idleClip
@@ -179,6 +199,20 @@ final class AnimationModel {
             return mapped
         }
         return stateMap[state] ?? stateMap["IDLE"] ?? baseClipName
+    }
+
+    func program(for name: String) -> Program? { programs[name] }
+
+    @discardableResult
+    func playProgram(_ name: String, phase: String = "body") -> Bool {
+        guard let program = programs[name] else { return false }
+        let clipName: String
+        switch phase {
+        case "enter": clipName = program.enter ?? program.body
+        case "exit": clipName = program.exit ?? program.body
+        default: clipName = program.body
+        }
+        return playOverlay(clipName)
     }
 
     private var underlayClipName: String {

@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 
 from runtime.animation_model import AnimationModel, crossfade_duration
-from runtime.helper import DRAG_RELEASE_STAGES
+from runtime.helper import DRAG_RELEASE_OUTCOMES, DRAG_RELEASE_STAGES, walk_step_distance
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -65,11 +65,12 @@ class AnimationModelTests(unittest.TestCase):
         self.assertEqual(crossfade_duration("working_search", "working_search"), 0.045)
 
     def test_drag_stage_clips_are_registered(self) -> None:
-        # Release and protest are real animations now; the daze stage stays a
-        # single pose so the procedural dizzy wobble carries it.
+        # Every release stage is an authored, visible animation.
         stages = {
             "dragging_release": (False, 49),
-            "dragging_dizzy": (True, 1),
+            "falling": (False, 5),
+            "landing": (False, 3),
+            "dragging_dizzy": (True, 12),
             "dragging_protest": (False, 96),
         }
         model = AnimationModel(MANIFEST)
@@ -83,9 +84,19 @@ class AnimationModelTests(unittest.TestCase):
     def test_drag_release_chain_matches_registered_stage_clips(self) -> None:
         self.assertEqual(
             [name for name, _ in DRAG_RELEASE_STAGES],
-            ["dragging_release", "dragging_dizzy", "dragging_protest"],
+            ["falling", "landing"],
         )
         self.assertTrue(all(hold_ms > 0 for _, hold_ms in DRAG_RELEASE_STAGES))
+        self.assertEqual(
+            {name for name, _ in DRAG_RELEASE_OUTCOMES},
+            {"landing"},
+        )
+        self.assertTrue(all(hold_ms > 0 for _, hold_ms in DRAG_RELEASE_OUTCOMES))
+
+    def test_walk_step_uses_elapsed_time_for_both_directions(self) -> None:
+        self.assertAlmostEqual(walk_step_distance(82, 16), 1.312)
+        self.assertAlmostEqual(walk_step_distance(82, 33), 2.706)
+        self.assertGreater(walk_step_distance(82, 33), walk_step_distance(82, 16))
 
     def test_single_frame_drag_stage_survives_advance_until_cleared(self) -> None:
         model = AnimationModel(MANIFEST)

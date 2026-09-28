@@ -6,7 +6,7 @@
 
 入口属于 DSH，生命周期属于 DSH，显示层属于桌面。
 
-[English](README_EN.md) · [npm](https://www.npmjs.com/package/dsh-dafeiyu) · [下载最新版本](https://github.com/QCYTSN/dsh-dafeiyu/releases) · [更新日志](CHANGELOG.md) · [更新与回退](docs/UPDATING.md) · [验收记录](docs/ACCEPTANCE.md)
+[English](README_EN.md) · [npm](https://www.npmjs.com/package/dsh-dafeiyu) · [下载最新版本](https://github.com/QCYTSN/dsh-dafeiyu/releases) · [更新日志](CHANGELOG.md) · [更新与回退](docs/UPDATING.md) · [验收记录](docs/ACCEPTANCE.md) · [参考文献与移植说明](docs/REFERENCES.md)
 
 [![npm](https://img.shields.io/npm/v/dsh-dafeiyu?label=npm)](https://www.npmjs.com/package/dsh-dafeiyu) · [![GitHub Release](https://img.shields.io/github/v/release/QCYTSN/dsh-dafeiyu?label=GitHub%20Release)](https://github.com/QCYTSN/dsh-dafeiyu/releases)
 
@@ -18,7 +18,7 @@ DSH 大肥鱼不是一个需要单独启动的桌宠应用。它由 DSH 插件�
 一起启动和退出，并以透明、无边框、始终置顶的原生窗口显示在桌面上。即使切换到
 VS Code、浏览器或文件管理器，也能知道 DSH 当前在思考、修改、测试、等待还是已经完成。
 
-> 当前版本：`0.1.14` · Windows / WSL2 / Linux x64 · macOS 实验性支持
+> 当前版本：`0.1.15` · Windows / WSL2 / Linux x64 · macOS 实验性支持
 
 ## 关注最新进展
 
@@ -92,8 +92,8 @@ stateDiagram-v2
 - DSH CLI 中可以使用 `plugin --profile web` 命令
 - npm 上的稳定版 `dsh-dafeiyu`（或抢先测试的 `dsh-dafeiyu@alpha`），或 GitHub Release 中的 `.tgz` 安装包
 
-普通用户**不需要**安装 Python、PySide6 或单独运行 Helper。Windows、Linux
-x64 和 macOS 的 Helper 都已经包含在发布包里。
+普通 Windows/Linux 用户**不需要**安装 Python、PySide6 或单独运行 Helper，预构建
+Helper 已包含在发布包里。macOS 仍是实验性 Python/PySide6 路径，见下方说明。
 
 当前 Alpha 版的设置与桌面状态文案使用简体中文。
 
@@ -176,7 +176,9 @@ pnpm dsh plugin --profile web add ~/Downloads/dsh-dafeiyu-<version>.tgz
 > 个别场景触发，放行方式见下方「关于 macOS Gatekeeper」。
 
 macOS 的安装方式与 Windows 相同，只是换成「终端」和 macOS 路径。发布包
-内置原生 Helper，**不需要安装 Python、PySide6 或 Xcode**。
+内置实验性桌面 Helper，但当前可视路径仍由 Python/PySide6 运行；请先准备
+Python 3.11+ 和 `requirements.txt` 中的 PySide6。普通 Windows/Linux 用户不需要
+这些运行时依赖。
 
 在「终端」中进入你的 DSH 安装目录（例如 `~/deepseek-harness`）：
 
@@ -226,7 +228,7 @@ Gatekeeper 拦截。只有用 Finder 解压出来的 `.app` 才会携带隔离�
   清除隔离标记后运行：
 
   ```bash
-  xattr -dr com.apple.quarantine <解压出的 dsh-dafeiyu-helper.app 路径>
+  xattr -dr com.apple.quarantine <解压出的 DSH.app 路径>
   ```
 
 ### 3. GitHub Release 备用安装方式
@@ -400,38 +402,40 @@ DSH 后会恢复。若想永久关闭，请在 DSH 设置中取消“启用大�
 
 ## macOS 原生适配（AI 辅助生成）
 
-> **说明**：本仓库的 macOS 原生 Helper（`runtime/bin/darwin/dsh-dafeiyu-helper.app`）
-> 及 `native/macos/` 下的 Swift 源码由 **AI 辅助生成**，经人工 review 与调试后合入，
-> 用于替代原 Qt/PySide6 与 PyObjC 原型在 macOS 上不稳定、易崩溃的问题。
+> **说明**：本仓库的 macOS 适配仍标为实验性。当前 `src/helper-process.js`
+> 选择单一的 `runtime/helper.py` 可视 Helper；`native/macos/` 下的 Swift
+> 实现保留为核心逻辑、布局和 AppKit 试验代码，并不会与 Python Helper 并行启动。
 
 ### 重做了哪些地方
 
-- **运行时重写**：Qt/PySide6 桌面窗口（`runtime/helper.py` 的可视路径）与
-  PyObjC 原生窗口原型，重写为 **Swift + 纯 AppKit** 原生实现，不再依赖
-  Python、PySide6、PyObjC 或 anaconda 环境。
-- **动画内核移植**：`runtime/animation_model.py` 的纯逻辑（clips、pulse、
-  overlay、idle 微动作、crossfade、程序化 motion）逐行移植为 Swift，行为与
-  Windows/Qt 版一致。
-- **全屏置顶**：使用 Apple 官方窗口能力（`canJoinAllSpaces` +
-  `fullScreenAuxiliary` + `.floating` 层级），每 2 秒重新断言层级，全屏 App
-  下依然保持在前端。
-- **权限处理**：通知走 `UNUserNotificationCenter`（SUCCESS/ERROR 提示，
-  被拒时回退 beep + 抖动）；辅助功能走 `AXIsProcessTrustedWithOptions`，
-  右键菜单可直达系统设置。
-- **稳定性修复**：helper 的 stdin/stdout/stderr 增加 EPIPE 兜底，helper
-  崩溃只重启自身，不再拖垮 dsh 服务器。
-- **渲染与交互修复**：修复 flipped 视图下图片倒置；拖拽改为绝对坐标 1:1
-  跟手；拖拽时人物与气泡位置同步。
-- **布局迁移**：首次启动自动把旧 Qt 版 top-left 坐标迁移到 AppKit
-  bottom-left 坐标，继续读写同一个 `layout.json`。
+- **单一运行时**：桌面窗口和动画状态机继续由 `runtime/helper.py` 负责，避免
+  Swift 与 Python 两套窗口同时出现而产生重复桌宠或残影。
+- **Swift 核心验证**：`native/macos/` 保留 AppKit 窗口、动画状态机、布局迁移和
+  交互物理的实现及 `swift test` 用例，作为后续原生化工作的可复现基线。
+- **稳定性边界**：Helper 的 stdin/stdout/stderr 有 EPIPE 兜底；Helper 崩溃只由
+  宿主重启自身，不把异常传播到 DSH 主进程。
 
 ### 兼容性
 
 - **架构**：Universal binary（Apple Silicon arm64 + Intel x86_64）
 - **系统**：macOS 12.0+
-- 构建与安装说明见 [native/macos/README.md](native/macos/README.md)
+- 目前 macOS 仍需按 [参考文献与跨平台移植说明](docs/REFERENCES.md) 中的实验性边界使用。
 
 ## 开发与测试
+
+## Codex 桌宠模式（macOS）
+
+如果希望大肥鱼跟随 ChatGPT/Codex 桌面端启动和退出，安装本仓库附带的生命周期观察器：
+
+```bash
+npm run build:helper:darwin
+npm run companion:install
+```
+
+它注册一个不显示窗口的 LaunchAgent 观察器：只有检测到 ChatGPT.app 运行时才启动大肥鱼
+和 Codex `app-server`；ChatGPT.app 退出后会关闭二者。大肥鱼状态卡下方有输入框，提交
+内容直接发送到 Codex app-server 的 thread/turn，不经过额外的模型接口或本地 HTTP 服务。
+卸载观察器：`npm run companion:uninstall`。
 
 ```powershell
 pnpm install
@@ -471,6 +475,7 @@ macOS 原生 Helper 的构建说明见 [native/macos/README.md](native/macos/REA
 - [Windows 验收与性能记录](docs/ACCEPTANCE.md)
 - [更新、回退与卸载](docs/UPDATING.md)
 - [维护者发布流程](docs/RELEASING.md)
+- [参考文献与跨平台移植说明](docs/REFERENCES.md)
 - [角色视觉资产许可](ASSET_LICENSE.md)
 
 相关项目：[QCYTSN/ds-local-pet](https://github.com/QCYTSN/ds-local-pet) 是独立桌宠版本；

@@ -23,17 +23,10 @@ const here = dirname(fileURLToPath(import.meta.url))
 const defaultHelperPath = resolve(here, '..', 'runtime', 'helper.py')
 const bundledHelperPath = resolve(here, '..', 'runtime', 'bin', 'win32-x64', 'dsh-dafeiyu-helper.exe')
 const linuxBundledHelperPath = resolve(here, '..', 'runtime', 'bin', 'linux-x64', 'dsh-dafeiyu-helper')
-const darwinBundledHelperPath = resolve(
-  here,
-  '..',
-  'runtime',
-  'bin',
-  'darwin',
-  'dsh-dafeiyu-helper.app',
-  'Contents',
-  'MacOS',
-  'dsh-dafeiyu-helper',
-)
+// macOS deliberately uses the PySide helper launcher below.  The packaged
+// Swift helper is not a fallback: running both implementations at once was
+// the source of the duplicate pet/black silhouette seen on the desktop.
+const darwinPythonHelperPath = resolve(here, '..', 'scripts', 'macos-python-helper.sh')
 const packageVersion = JSON.parse(
   readFileSync(resolve(here, '..', 'package.json'), 'utf8'),
 ).version
@@ -65,7 +58,7 @@ function isWsl() {
 function shouldUseBundledHelper() {
   if (process.platform === 'win32' || isWsl()) return existsSync(bundledHelperPath)
   if (process.platform === 'linux') return existsSync(linuxBundledHelperPath)
-  return process.platform === 'darwin' && existsSync(darwinBundledHelperPath)
+  return false
 }
 
 function isBundledHelperCommand(command) {
@@ -185,7 +178,6 @@ function resolveHelperLaunch({
   isWslEnv,
   bundledPath,
   linuxBundledPath = linuxBundledHelperPath,
-  darwinBundledPath = darwinBundledHelperPath,
   helperPath,
   pythonEnv,
   headless = false,
@@ -205,8 +197,11 @@ function resolveHelperLaunch({
       return { command: bundledPath, args: [] }
     }
   }
-  if (platform === 'darwin' && fileExists(darwinBundledPath)) {
-    return { command: darwinBundledPath, args: [] }
+  if (platform === 'darwin' && fileExists(darwinPythonHelperPath)) {
+    // npm/pnpm archives may normalize a resource script to 0644. Invoke it
+    // through bash so a packaged macOS profile does not fail with EACCES just
+    // because the archive lost the executable bit.
+    return { command: 'bash', args: [darwinPythonHelperPath] }
   }
   if (platform === 'linux' && isWslEnv && !headless && fileExists(bundledPath)) {
     // npm archives created on Windows store ordinary files as 0644. Launching
@@ -242,7 +237,6 @@ function defaultLaunch(headless = false) {
     isWslEnv: isWsl(),
     bundledPath: bundledHelperPath,
     linuxBundledPath: linuxBundledHelperPath,
-    darwinBundledPath: darwinBundledHelperPath,
     helperPath: defaultHelperPath,
     pythonEnv: process.env.DSH_DAFEIYU_PYTHON,
     headless,
@@ -569,7 +563,7 @@ export class HelperProcess {
 
 export {
   bundledHelperPath,
-  darwinBundledHelperPath,
+  darwinPythonHelperPath,
   linuxBundledHelperPath,
   defaultHelperPath,
   defaultArgs,

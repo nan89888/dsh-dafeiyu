@@ -1,5 +1,6 @@
 import { createRequire } from 'node:module'
-import { readFileSync } from 'node:fs'
+import { appendFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs'
+import { homedir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import Schema from '@deepseek-ai/schemastery'
@@ -27,6 +28,25 @@ export const FRAME_ENDPOINT = '/plugins/dsh-dafeiyu/frame'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const assetsRoot = resolve(here, '..', 'assets')
+// The ChatGPT-bound lifecycle companion owns the single visible macOS window.
+// In that mode this plugin remains the state source but runs its helper
+// headless, avoiding a second pet/black silhouette behind the visible one.
+const externalEventPath = process.env.DSH_DAFEIYU_EXTERNAL_EVENT_LOG
+  || resolve(homedir(), '.dsh', 'dafeiyu', 'plugin-events.jsonl')
+const externalMarkerPath = resolve(homedir(), '.dsh', 'dafeiyu', 'external-supervisor')
+const externalSupervisor = process.platform === 'darwin'
+  && (process.env.DSH_DAFEIYU_EXTERNAL_SUPERVISOR === '1' || existsSync(externalMarkerPath))
+
+function mirrorExternalEvent(message) {
+  if (!externalSupervisor) return
+  try {
+    mkdirSync(dirname(externalEventPath), { recursive: true })
+    appendFileSync(externalEventPath, `${JSON.stringify(message)}\n`, { mode: 0o600 })
+  } catch {
+    // The visual companion is optional; do not fail DSH startup if the bridge
+    // is temporarily unavailable.
+  }
+}
 export const Config = Schema.object({
   enabled: Schema.boolean().default(true).description('启用桌面大肥鱼'),
   scale: Schema.number().min(0.55).max(1.4).step(0.05).default(1).role('slider').description('角色大小'),
@@ -36,6 +56,18 @@ export const Config = Schema.object({
     Schema.const('normal').description('标准'),
     Schema.const('lively').description('活泼'),
   ]).default('normal').description('空闲微动作频率'),
+  movementMode: Schema.union([
+    Schema.const('follow').description('跟随鼠标'),
+    Schema.const('quiet').description('安静陪伴'),
+    Schema.const('lively').description('活泼陪伴'),
+    // Keep accepting the two pre-0.1.15 values so an existing DSH setting
+    // does not fail validation during upgrade; the helper normalises them.
+    Schema.const('still').description('旧版停留'),
+    Schema.const('wander').description('旧版散步'),
+  ]).default('follow').description('桌宠移动模式'),
+  walkSpeed: Schema.number().min(20).max(180).step(1).default(82).role('slider').description('散步速度'),
+  windowLanding: Schema.boolean().default(false).description('允许窗口顶部落脚'),
+  localAwareness: Schema.boolean().default(false).description('读取前台应用元数据'),
   reducedMotion: Schema.boolean().default(false).description('减少走动、循环帧和程序化晃动'),
   soundEnabled: Schema.boolean().default(true).description('任务完成或出错时播放提示音'),
   bubbleMode: Schema.union([
@@ -53,6 +85,10 @@ const defaults = Object.freeze({
   scale: 1,
   bubbleScale: 1,
   activityLevel: 'normal',
+  movementMode: 'follow',
+  walkSpeed: 82,
+  windowLanding: false,
+  localAwareness: false,
   reducedMotion: false,
   soundEnabled: true,
   bubbleMode: 'always',
@@ -62,11 +98,17 @@ const defaults = Object.freeze({
 })
 
 function publicConfig(config = {}) {
+  const rawMovementMode = config.movementMode ?? defaults.movementMode
+  const movementMode = { still: 'quiet', wander: 'lively' }[rawMovementMode] ?? rawMovementMode
   return {
     enabled: config.enabled ?? defaults.enabled,
     scale: config.scale ?? defaults.scale,
     bubbleScale: config.bubbleScale ?? defaults.bubbleScale,
     activityLevel: config.activityLevel ?? defaults.activityLevel,
+    movementMode: ['follow', 'quiet', 'lively'].includes(movementMode) ? movementMode : defaults.movementMode,
+    walkSpeed: config.walkSpeed ?? defaults.walkSpeed,
+    windowLanding: config.windowLanding === true,
+    localAwareness: config.localAwareness === true,
     reducedMotion: config.reducedMotion ?? defaults.reducedMotion,
     soundEnabled: config.soundEnabled ?? defaults.soundEnabled,
     bubbleMode: config.bubbleMode ?? defaults.bubbleMode,
@@ -307,6 +349,10 @@ function mountCompanion(ctx, config = {}, eventCtx = ctx, logger) {
       scale: next.scale ?? defaults.scale,
       bubbleScale: next.bubbleScale ?? defaults.bubbleScale,
       activityLevel: next.activityLevel ?? defaults.activityLevel,
+      movementMode: next.movementMode ?? defaults.movementMode,
+      walkSpeed: next.walkSpeed ?? defaults.walkSpeed,
+      windowLanding: next.windowLanding === true,
+      localAwareness: next.localAwareness === true,
       reducedMotion: next.reducedMotion === true,
       soundEnabled: next.soundEnabled !== false,
       bubbleMode: next.bubbleMode ?? defaults.bubbleMode,
@@ -331,11 +377,16 @@ function mountCompanion(ctx, config = {}, eventCtx = ctx, logger) {
     const helperConfig = config.helper ?? {}
     bridge = new HelperProcess({
       ...helperConfig,
+      headless: externalSupervisor ? true : helperConfig.headless,
       env: {
         ...helperConfig.env,
         DSH_DAFEIYU_SCALE: String(resolved.scale ?? defaults.scale),
         DSH_DAFEIYU_BUBBLE_SCALE: String(resolved.bubbleScale ?? defaults.bubbleScale),
         DSH_DAFEIYU_ACTIVITY_LEVEL: String(resolved.activityLevel ?? defaults.activityLevel),
+        DSH_DAFEIYU_MOVEMENT_MODE: String(resolved.movementMode ?? defaults.movementMode),
+        DSH_DAFEIYU_WALK_SPEED: String(resolved.walkSpeed ?? defaults.walkSpeed),
+        DSH_DAFEIYU_WINDOW_LANDING: resolved.windowLanding === true ? '1' : '0',
+        DSH_DAFEIYU_LOCAL_AWARENESS: resolved.localAwareness === true ? '1' : '0',
         DSH_DAFEIYU_REDUCED_MOTION: resolved.reducedMotion === true ? '1' : '0',
         DSH_DAFEIYU_SOUND_ENABLED: resolved.soundEnabled !== false ? '1' : '0',
         DSH_DAFEIYU_BUBBLE_MODE: String(resolved.bubbleMode ?? defaults.bubbleMode),
@@ -347,6 +398,10 @@ function mountCompanion(ctx, config = {}, eventCtx = ctx, logger) {
         const patch = {}
         if (Number.isFinite(report.scale)) patch.scale = Math.min(1.4, Math.max(0.55, report.scale))
         if (Number.isFinite(report.bubbleScale)) patch.bubbleScale = Math.min(1.2, Math.max(0.8, report.bubbleScale))
+        if (['follow', 'quiet', 'lively', 'still', 'wander'].includes(report.movementMode)) patch.movementMode = report.movementMode
+        if (Number.isFinite(report.walkSpeed)) patch.walkSpeed = Math.min(180, Math.max(20, report.walkSpeed))
+        if (typeof report.windowLanding === 'boolean') patch.windowLanding = report.windowLanding
+        if (typeof report.localAwareness === 'boolean') patch.localAwareness = report.localAwareness
         if (typeof report.reducedMotion === 'boolean') patch.reducedMotion = report.reducedMotion
         if (Object.keys(patch).length === 0) return
         void Promise.resolve(settings.update(patch)).catch((error) => {
@@ -360,6 +415,7 @@ function mountCompanion(ctx, config = {}, eventCtx = ctx, logger) {
     bridge.send = (message) => {
       deliver(message)
       eventStream.broadcast(message)
+      mirrorExternalEvent(message)
     }
     reducer = new CompanionReducer({ includeSubagents: resolved.includeSubagents === true })
     bridge.start()
