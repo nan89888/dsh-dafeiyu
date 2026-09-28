@@ -10,9 +10,9 @@
 **简介 / Overview**：大肥鱼随 DSH 启动和退出，通过透明桌面窗口反馈思考、工作、等待、完成和错误状态；它不是独立的模型或聊天服务，而是 DSH 的跨平台桌面伴侣。<br>
 BigFish starts and stops with DSH and reports thinking, working, waiting, success, and error states in a transparent desktop window. It is not a separate model or chat service; it is DSH's cross-platform desktop companion.
 
-[English](README_EN.md) · [npm](https://www.npmjs.com/package/dsh-dafeiyu) · [下载最新版本](https://github.com/QCYTSN/dsh-dafeiyu/releases) · [更新日志](CHANGELOG.md) · [更新与回退](docs/UPDATING.md) · [验收记录](docs/ACCEPTANCE.md) · [参考文献与移植说明](docs/REFERENCES.md)
+[English / English guide](README_EN.md) · [npm](https://www.npmjs.com/package/dsh-dafeiyu) · [下载最新版本](https://github.com/nan89888/dsh-dafeiyu/releases) · [更新日志](CHANGELOG.md) · [更新与回退](docs/UPDATING.md) · [验收记录](docs/ACCEPTANCE.md) · [运行版说明](docs/RUNTIME_OVERVIEW.md) · [参考文献与移植说明](docs/REFERENCES.md)
 
-[![npm](https://img.shields.io/npm/v/dsh-dafeiyu?label=npm)](https://www.npmjs.com/package/dsh-dafeiyu) · [![GitHub Release](https://img.shields.io/github/v/release/QCYTSN/dsh-dafeiyu?label=GitHub%20Release)](https://github.com/QCYTSN/dsh-dafeiyu/releases)
+[![npm](https://img.shields.io/npm/v/dsh-dafeiyu?label=npm)](https://www.npmjs.com/package/dsh-dafeiyu) · [![GitHub Release](https://img.shields.io/github/v/release/nan89888/dsh-dafeiyu?label=GitHub%20Release)](https://github.com/nan89888/dsh-dafeiyu/releases)
 
 </div>
 
@@ -24,12 +24,24 @@ VS Code、浏览器或文件管理器，也能知道 DSH 当前在思考、修�
 
 > 当前版本：`0.1.15` · Windows / WSL2 / Linux x64 · macOS 实验性支持
 
+## 本 fork 的当前运行版 / Current fork implementation
+
+这部分只描述 `nan89888/dsh-dafeiyu` 当前提交实际包含的功能，不把参考仓库的截图或宣传语当成本项目能力：
+
+- DSH 插件从真实 session、task、tool 事件更新桌宠状态；桌宠随 DSH Helper 生命周期启动和退出。
+- 可视 Helper 当前由 `runtime/helper.py` 提供；Windows/Linux 使用随包 Helper，macOS 仍是实验性 Python/PySide6 路径，Swift 目录不会并行启动第二个桌宠。
+- `follow`、`quiet`、`lively` 三种移动模式由 `runtime/activity_director.py` 调度；散步有一分钟预算，有限动作获得播放锁，不会被普通散步中途抢断。
+- 透明 WebP 动画、历史对话滚动、长文本换行、蓝色大肥鱼显示名、拖拽/下落/落地状态和置顶设置由本 fork 的 `runtime/`、`src/` 和 `assets/` 共同实现。
+- 本地验证过 Node 测试、Python 测试、macOS `ready/pong` 协议烟测和解包后的 npm Helper 烟测；Windows/Linux 实机结果以对应 GitHub Actions 为准，不在本机冒充已验证。
+
+英文版现在直接可见于 [README_EN.md](README_EN.md)，同一套运行事实也整理在 [docs/RUNTIME_OVERVIEW.md](docs/RUNTIME_OVERVIEW.md)。动画素材来源、许可证和参考边界见 [docs/REFERENCES.md](docs/REFERENCES.md) 与 [ASSET_LICENSE.md](ASSET_LICENSE.md)，不会把参考素材冒充为本 fork 原创。
+
 ## 关注最新进展
 
-- 最新版本永远以 [npm `latest`](https://www.npmjs.com/package/dsh-dafeiyu) 和 [GitHub Releases](https://github.com/QCYTSN/dsh-dafeiyu/releases) 为准（Releases 里同时提供 `.tgz` 安装包）；顶部的版本徽章会自动更新。
+- 最新版本永远以 [npm `latest`](https://www.npmjs.com/package/dsh-dafeiyu) 和 [GitHub Releases](https://github.com/nan89888/dsh-dafeiyu/releases) 为准（Releases 里同时提供 `.tgz` 安装包）；顶部的版本徽章会自动更新。
 - 给仓库 **Star 只是收藏，不会收到更新通知**。想第一时间知道「更新了什么」：
     1. 打开仓库点 **Watch → Custom → Releases**，只订阅 Release 通知；
-    2. 或直接订阅 Releases 的 feed：<https://github.com/QCYTSN/dsh-dafeiyu/releases.atom>
+    2. 或直接订阅 Releases 的 feed：<https://github.com/nan89888/dsh-dafeiyu/releases.atom>
 - 已安装用户升级：完全退出 DSH 后执行
   ```powershell
   dsh plugin --profile web update dsh-dafeiyu
@@ -163,7 +175,7 @@ cd ~/deepseek-harness
 pnpm dsh plugin --profile web add dsh-dafeiyu
 ```
 
-也可以从 [GitHub Releases](https://github.com/QCYTSN/dsh-dafeiyu/releases)
+也可以从 [GitHub Releases](https://github.com/nan89888/dsh-dafeiyu/releases)
 下载 `dsh-dafeiyu-<version>.tgz`（不要解压），然后安装：
 
 ```bash
@@ -202,7 +214,7 @@ pnpm dsh plugin --profile web add dsh-dafeiyu
 dsh plugin --profile web add dsh-dafeiyu
 ```
 
-也可以从 [GitHub Releases](https://github.com/QCYTSN/dsh-dafeiyu/releases)
+也可以从 [GitHub Releases](https://github.com/nan89888/dsh-dafeiyu/releases)
 下载 `dsh-dafeiyu-<version>.tgz`（不要解压），然后安装：
 
 ```bash
@@ -213,7 +225,7 @@ pnpm dsh plugin --profile web add ~/Downloads/dsh-dafeiyu-<version>.tgz
 
 #### 关于 macOS Gatekeeper
 
-实测结论（见 issue [#24](https://github.com/QCYTSN/dsh-dafeiyu/issues/24)）：
+实测结论（详见 [更新与回退说明](docs/UPDATING.md)）：
 从 npm 安装、用终端下载、以及浏览器下载 `.tgz` 后**直接安装**，都不会触发
 Gatekeeper 拦截。只有用 Finder 解压出来的 `.app` 才会携带隔离标记，双击时
 被拦截。
@@ -223,9 +235,9 @@ Gatekeeper 拦截。只有用 Finder 解压出来的 `.app` 才会携带隔离�
 - 用终端下载从一开始就不会产生隔离标记：
 
   ```bash
-  gh release download --repo QCYTSN/dsh-dafeiyu
+  gh release download --repo nan89888/dsh-dafeiyu
   # 或者
-  curl -LO https://github.com/QCYTSN/dsh-dafeiyu/releases/download/v<版本>/dsh-dafeiyu-<版本>.tgz
+  curl -LO https://github.com/nan89888/dsh-dafeiyu/releases/download/v<版本>/dsh-dafeiyu-<版本>.tgz
   ```
 
 - 如果已经用 Finder 解压并被拦截：右键该 Helper →「打开」放行一次，或者
@@ -237,7 +249,7 @@ Gatekeeper 拦截。只有用 Finder 解压出来的 `.app` 才会携带隔离�
 
 ### 3. GitHub Release 备用安装方式
 
-进入 [GitHub Releases](https://github.com/QCYTSN/dsh-dafeiyu/releases)，下载最新的：
+进入 [GitHub Releases](https://github.com/nan89888/dsh-dafeiyu/releases)，下载最新的：
 
 ```text
 dsh-dafeiyu-<version>.tgz

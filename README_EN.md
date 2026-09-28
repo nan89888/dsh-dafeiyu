@@ -10,9 +10,9 @@ Enabled by DSH, owned by the DSH lifecycle, rendered on the desktop.
 **Overview / 简介**: BigFish starts and stops with DSH and reports thinking, working, waiting, success, and error states in a transparent desktop window. It is not a separate model or chat service; it is DSH's cross-platform desktop companion.<br>
 大肥鱼随 DSH 启动和退出，通过透明桌面窗口反馈思考、工作、等待、完成和错误状态；它不是独立的模型或聊天服务，而是 DSH 的跨平台桌面伴侣。
 
-[中文](README.md) · [npm](https://www.npmjs.com/package/dsh-dafeiyu) · [Latest release](https://github.com/QCYTSN/dsh-dafeiyu/releases) · [Changelog](CHANGELOG.md) · [Update and rollback](docs/UPDATING.md) · [Acceptance notes](docs/ACCEPTANCE.md) · [References and porting notes](docs/REFERENCES.md)
+[中文 / Chinese guide](README.md) · [npm](https://www.npmjs.com/package/dsh-dafeiyu) · [Latest release](https://github.com/nan89888/dsh-dafeiyu/releases) · [Changelog](CHANGELOG.md) · [Update and rollback](docs/UPDATING.md) · [Acceptance notes](docs/ACCEPTANCE.md) · [Runtime overview](docs/RUNTIME_OVERVIEW.md) · [References and porting notes](docs/REFERENCES.md)
 
-[![npm](https://img.shields.io/npm/v/dsh-dafeiyu?label=npm)](https://www.npmjs.com/package/dsh-dafeiyu) · [![GitHub Release](https://img.shields.io/github/v/release/QCYTSN/dsh-dafeiyu?label=GitHub%20Release)](https://github.com/QCYTSN/dsh-dafeiyu/releases)
+[![npm](https://img.shields.io/npm/v/dsh-dafeiyu?label=npm)](https://www.npmjs.com/package/dsh-dafeiyu) · [![GitHub Release](https://img.shields.io/github/v/release/nan89888/dsh-dafeiyu?label=GitHub%20Release)](https://github.com/nan89888/dsh-dafeiyu/releases)
 
 </div>
 
@@ -25,12 +25,24 @@ editing, testing, waiting, or finished while working in VS Code, a browser, or F
 
 > Current version: `0.1.15` · Windows / WSL2 / Linux x64 · experimental macOS support
 
+## Current fork implementation / 本 fork 的当前运行版
+
+This section describes what the `nan89888/dsh-dafeiyu` fork actually contains. It does not turn reference-repository screenshots or marketing text into claimed features:
+
+- The DSH plugin maps real session, task, and tool events to the companion state; the Helper follows the DSH lifecycle.
+- The current visible Helper is `runtime/helper.py`. Windows/Linux use bundled Helpers; macOS remains an experimental Python/PySide6 path, and the Swift directory is not launched as a second pet.
+- `follow`, `quiet`, and `lively` are scheduled by `runtime/activity_director.py`; walking has a one-minute budget and finite actions hold a playback lock instead of being interrupted by ordinary wandering.
+- Transparent WebP animation, scrollable conversation history, long-text wrapping, the “蓝色大肥鱼” display name, drag/fall/landing states, and window-level settings are implemented across this fork's `runtime/`, `src/`, and `assets/` directories.
+- Local checks cover Node tests, Python tests, macOS `ready/pong` protocol smoke tests, and the unpacked npm Helper. Windows/Linux desktop results are reported only by their matching GitHub Actions jobs, not claimed as local tests.
+
+The Chinese guide is available in [README.md](README.md). The same runtime facts are listed in [docs/RUNTIME_OVERVIEW.md](docs/RUNTIME_OVERVIEW.md). Asset provenance and licenses are documented in [docs/REFERENCES.md](docs/REFERENCES.md) and [ASSET_LICENSE.md](ASSET_LICENSE.md); this fork does not present reference artwork as original artwork.
+
 ## Follow updates
 
-- The latest version always matches npm [`latest`](https://www.npmjs.com/package/dsh-dafeiyu) and [GitHub Releases](https://github.com/QCYTSN/dsh-dafeiyu/releases) (which also carry the `.tgz` archives); the badges above update automatically.
+- The latest version always matches npm [`latest`](https://www.npmjs.com/package/dsh-dafeiyu) and [GitHub Releases](https://github.com/nan89888/dsh-dafeiyu/releases) (which also carry the `.tgz` archives); the badges above update automatically.
 - **Starring is just a bookmark — GitHub will not notify you of updates.** To get notified about what changed:
     1. Open the repo and choose **Watch → Custom → Releases**;
-    2. or subscribe to the Releases feed: <https://github.com/QCYTSN/dsh-dafeiyu/releases.atom>
+    2. or subscribe to the Releases feed: <https://github.com/nan89888/dsh-dafeiyu/releases.atom>
 - To upgrade an installed copy: fully exit DSH, then run
   ```powershell
   dsh plugin --profile web update dsh-dafeiyu
@@ -174,7 +186,7 @@ pnpm dsh plugin --profile web add dsh-dafeiyu
 ```
 
 Alternatively, download `dsh-dafeiyu-<version>.tgz` from
-[GitHub Releases](https://github.com/QCYTSN/dsh-dafeiyu/releases) (do not
+[GitHub Releases](https://github.com/nan89888/dsh-dafeiyu/releases) (do not
 extract it) and install it:
 
 ```bash
@@ -218,7 +230,7 @@ dsh plugin --profile web add dsh-dafeiyu
 ```
 
 Alternatively, download `dsh-dafeiyu-<version>.tgz` from
-[GitHub Releases](https://github.com/QCYTSN/dsh-dafeiyu/releases) (do not
+[GitHub Releases](https://github.com/nan89888/dsh-dafeiyu/releases) (do not
 extract it) and install it:
 
 ```bash
@@ -230,8 +242,8 @@ the Helper yourself.
 
 #### About macOS Gatekeeper
 
-Verified conclusions (see issue
-[#24](https://github.com/QCYTSN/dsh-dafeiyu/issues/24)): installing from npm,
+Verified conclusions (see the [update and rollback guide](docs/UPDATING.md)):
+installing from npm,
 downloading via the terminal, and installing a browser-downloaded `.tgz`
 **directly** all bypass Gatekeeper. Only an `.app` extracted with Finder
 carries the quarantine attribute and gets blocked on double-click.
@@ -243,9 +255,9 @@ carries the quarantine attribute and gets blocked on double-click.
   place:
 
   ```bash
-  gh release download --repo QCYTSN/dsh-dafeiyu
+  gh release download --repo nan89888/dsh-dafeiyu
   # or
-  curl -LO https://github.com/QCYTSN/dsh-dafeiyu/releases/download/v<version>/dsh-dafeiyu-<version>.tgz
+  curl -LO https://github.com/nan89888/dsh-dafeiyu/releases/download/v<version>/dsh-dafeiyu-<version>.tgz
   ```
 
 - If you already extracted with Finder and got blocked: right-click the Helper
@@ -257,7 +269,7 @@ carries the quarantine attribute and gets blocked on double-click.
 
 ### 3. GitHub Release fallback
 
-Open [GitHub Releases](https://github.com/QCYTSN/dsh-dafeiyu/releases) and download:
+Open [GitHub Releases](https://github.com/nan89888/dsh-dafeiyu/releases) and download:
 
 ```text
 dsh-dafeiyu-<version>.tgz
